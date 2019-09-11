@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[26]:
+# In[ ]:
 
 
 import numpy as np
 
 
-# In[27]:
+# In[ ]:
 
 
 '''
@@ -22,7 +22,7 @@ gamma = 0.9
 theta = 1e-10
 
 
-# In[28]:
+# In[ ]:
 
 
 '''
@@ -49,7 +49,7 @@ for i in range(5):
         
 
 
-# In[29]:
+# In[ ]:
 
 
 '''
@@ -57,7 +57,7 @@ Initialising the transition Probability matrix picking states with equal probabi
 
 Example
 For state 0,0 we can go right with 1/4, bottom with 1/4 and out of the grid with 2/4 that results in the same state
-
+Similarly for other states
 '''
 for i in range(5):
     for j in range(5):
@@ -109,39 +109,82 @@ for i in range(5):
             transitionProbMatrix[index,i*5+j-1] = 1/4
 
 
-# In[30]:
+# In[ ]:
 
 
+'''
+Performing Policy Iteration to solve the Non Linear Equation 
+
+The Policy Evalutation Step
+
+v(s) = Σ(a|s)Σp(s',r|s,a)[r+ gamma*v(s')] , for all s'. The outer summation is over a, the inner summation is over r and s'
+This Equation can be simplified to
+
+v(s) = Σrp(r|s) + gamma*(Σp(s'|s)v(s'))
+
+The Policy Improvement Step
+
+π'(s) = argmax (Σrp(r,a|s) + gamma*(Σp(s',a|s)v(s')))
+
+
+'''
+
+#Loop for the whole policy iteration
 while True:
-    print(transitionProbMatrix)
+    
+    #Printing Policy
+    for row in range(25):
+        print(row, transitionProbMatrix[row])
+    
     oldPolicyStateValue = np.copy(stateValueMatrix)
+    
+    #Loop for Policy Evaluation
     while True:
         maxDifference = 0
         oldStateValueMatrix = np.copy(stateValueMatrix)
+        #Update Step
         stateValueMatrix = expectedRewardMatrix + gamma*np.matmul(transitionProbMatrix, stateValueMatrix)
+        stateValueMatrix = np.round(stateValueMatrix, decimals=1)
         difference = abs(stateValueMatrix - oldStateValueMatrix)
         if np.max(difference) < theta:
             break
-    stateValueMatrix = np.around(stateValueMatrix, decimals=2)
+    
+    #Printing Value Matrix
     for row in range(5):
         for col in range(5):
             print(stateValueMatrix[row*5+col], end=" ")
         print()
+    
+    #Breaking Out of Policy Loop if Value Function using previous policy is same
     if np.max(abs(oldPolicyStateValue - stateValueMatrix)) < theta:
         break
+    
+    #Updating Policy
     for i in range(25):
         indices = []
         value = []
         for j in range(25):
+            expectedReward = 0
             if transitionProbMatrix[i,j] > 0:
-                value.append(transitionProbMatrix[i,j] * stateValueMatrix[j])
+                if i == j:
+                    expectedReward += -1*transitionProbMatrix[i,j]
+                elif i == 1 and j == 21:
+                    expectedReward += 10*transitionProbMatrix[i,j]
+                elif i == 3 and j == 13:
+                    expectedReward += 5*transitionProbMatrix[i,j]
+                #Storing Value for Each action
+                value.append(expectedReward + gamma*transitionProbMatrix[i,j] * stateValueMatrix[j])
                 indices.append(j)
+        value = np.round(value, decimals=1)
+        #Taking the max of actions
         maxIndices = np.argwhere(value == np.max(value)).flatten()
         numMaxIndices = len(maxIndices)
         transitionProbMatrix[i] = 0
+        #Updating with the max values
         for j in range(len(maxIndices)):
             transitionProbMatrix[i, indices[maxIndices[j]]] = 1/numMaxIndices
     
+    #Updating the expected reward due to new policy
     for i in range(25):
         expectedReward = 0
         for j in range(25):
@@ -154,11 +197,6 @@ while True:
                     expectedReward += 5*transitionProbMatrix[i,j]
         expectedRewardMatrix[i] = expectedReward
         
-print(transitionProbMatrix)
-
-
-# In[ ]:
-
-
-
+for row in range(25):
+    print(row, transitionProbMatrix[row])
 

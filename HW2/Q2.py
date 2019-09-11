@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[117]:
+# In[ ]:
 
 
 import numpy as np
@@ -24,7 +24,7 @@ I - gamma*P[s'|s] is 25X25 matrix
 '''
 
 
-# In[118]:
+# In[ ]:
 
 
 '''
@@ -38,7 +38,7 @@ transitionProbMatrix = np.zeros((25,25))
 gamma = 0.9
 
 
-# In[119]:
+# In[ ]:
 
 
 '''
@@ -66,7 +66,7 @@ for i in range(5):
     
 
 
-# In[120]:
+# In[ ]:
 
 
 '''
@@ -127,20 +127,20 @@ for i in range(5):
         
 
 
-# In[121]:
+# In[ ]:
 
 
 identitMatrix = np.identity(25)
 stateValueMatrix = np.matmul(np.linalg.inv(identitMatrix - gamma*transitionProbMatrix), expectedRewardMatrix)
 
 
-# In[122]:
+# In[ ]:
 
 
 stateValueMatrix = np.around(stateValueMatrix, decimals=1)
 
 
-# In[123]:
+# In[ ]:
 
 
 for i in range(5):
